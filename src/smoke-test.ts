@@ -29,4 +29,17 @@ console.log('\nrecommend_learning_path("ai") for acme:\n' + (path.content as { t
 const otherOrg = await client.callTool({ name: 'search_courses', arguments: { query: 'globex sales' } });
 console.log('\nsearch_courses("globex sales") from acme (should find nothing):\n' + (otherOrg.content as { text: string }[])[0].text);
 
+const rag = await client.callTool({
+  name: 'search_course_content',
+  arguments: { question: 'how do I reduce hallucinations?', limit: 2 },
+});
+console.log('\nsearch_course_content("how do I reduce hallucinations?"):\n' + (rag.content as { text: string }[])[0].text);
+
+const ragOtherOrg = await client.callTool({
+  name: 'search_course_content',
+  arguments: { question: 'what are the enterprise revenue targets?', limit: 2 },
+});
+console.log('\nsearch_course_content("what are the enterprise revenue targets?") from acme (should not return Globex content):\n'
+  + (ragOtherOrg.content as { text: string }[])[0].text);
+
 await client.close();

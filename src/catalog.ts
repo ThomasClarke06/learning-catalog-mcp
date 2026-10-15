@@ -108,6 +108,10 @@ const courses: Course[] = [
 
 const levelOrder: Level[] = ['beginner', 'intermediate', 'advanced'];
 
+export function allCourses(): Course[] {
+  return courses;
+}
+
 // Tenant isolation lives here, not in the tool arguments, so the model can never ask for another org's content.
 export function coursesForOrg(orgId: string): Course[] {
   return courses.filter(course => course.orgId === SHARED_ORG_ID || course.orgId === orgId);

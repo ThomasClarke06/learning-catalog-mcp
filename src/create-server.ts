@@ -2,6 +2,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 
 import { coursesForOrg, findCourse, learningPath, searchCourses, type Course } from './catalog.js';
+import { searchCourseContent } from './rag/course-search.js';
 
 const levelSchema = z.enum(['beginner', 'intermediate', 'advanced']);
 
@@ -68,6 +69,28 @@ export function createServer(orgId: string): McpServer {
         return textResult(`No courses teach "${skill}" yet.`);
       }
       return textResult(path.map((course, i) => `${i + 1}. ${formatCourse(course).slice(2)}`).join('\n'));
+    },
+  );
+
+  server.registerTool(
+    'search_course_content',
+    {
+      title: 'Search course content',
+      description: 'Semantic (RAG) search over the lesson text of courses. Use it to answer questions about what the courses teach. Returns the most relevant passages with their course and section, so the answer can cite them.',
+      inputSchema: {
+        question: z.string().min(1).describe('A natural-language question, e.g. "how do I stop an LLM making things up?"'),
+        limit: z.number().int().min(1).max(10).default(3).describe('How many passages to return'),
+      },
+      annotations: { readOnlyHint: true },
+    },
+    async ({ question, limit }) => {
+      const hits = await searchCourseContent(orgId, question, limit);
+      if (!hits.length) {
+        return textResult(`No course content matches "${question}". Say you could not find it rather than guessing.`);
+      }
+      return textResult(hits
+        .map(({ chunk, score }) => `[${chunk.courseTitle} > ${chunk.section}] (similarity ${score.toFixed(2)})\n${chunk.text}`)
+        .join('\n\n'));
     },
   );
 
