@@ -34,6 +34,20 @@ claude mcp add learning-catalog -e ORG_ID=acme -- node "$(pwd)/dist/server.js"
 
 Then ask Claude something like "Use the learning catalogue to plan how I'd learn RAG in 3 hours a week".
 
+## Use it from ChatGPT (HTTP mode)
+
+The same tools also run over the Streamable HTTP transport, which remote clients such as ChatGPT use. The server runs in stateless mode and checks the Host header to block DNS rebinding.
+
+```bash
+npm run build
+cloudflared tunnel --url http://localhost:3000   # prints https://<random>.trycloudflare.com
+ALLOWED_HOSTS=<random>.trycloudflare.com npm run start:http
+```
+
+In ChatGPT, turn on developer mode, then create a connector with the URL `https://<random>.trycloudflare.com/mcp` and no authentication.
+
+`npm run smoke-test:http` calls a running HTTP server (default `http://localhost:3000/mcp`, override with `MCP_URL`).
+
 ## Stack
 
-TypeScript, `@modelcontextprotocol/sdk`, zod for input schemas, stdio transport.
+TypeScript, `@modelcontextprotocol/sdk`, zod for input schemas, stdio and Streamable HTTP transports, Express.
