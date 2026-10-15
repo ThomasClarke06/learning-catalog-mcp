@@ -1,0 +1,23 @@
+{
+  "name": "learning-catalog-mcp",
+  "version": "1.0.0",
+  "description": "A small MCP server exposing a multi-tenant learning catalogue as tools, a resource and a prompt",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "smoke-test": "npm run build && node dist/smoke-test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "typescript": "^7.0.2"
+  },
+  "type": "module"
+}

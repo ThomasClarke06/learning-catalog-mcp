@@ -1,2 +1,39 @@
 # learning-catalog-mcp
-Learning catalogue MCP server
+
+A small Model Context Protocol (MCP) server in TypeScript that exposes a multi-tenant learning catalogue to AI assistants such as Claude Code.
+
+It shows all three MCP server primitives:
+
+| Primitive | Name | What it does |
+|---|---|---|
+| Tool | `search_courses` | Keyword search, with an optional level filter |
+| Tool | `get_course` | Full details of one course |
+| Tool | `recommend_learning_path` | Courses for a skill, ordered beginner to advanced |
+| Resource | `catalog://courses` | The whole catalogue for this org, as JSON |
+| Prompt | `study_plan` | A reusable prompt that builds a weekly study plan using the tools |
+
+## Tenant isolation
+
+Courses are either shared or belong to one organisation. The org comes from the server's config (`ORG_ID`), not from tool arguments, so the model cannot ask for another organisation's content. In a real product the org would come from the authenticated user's token.
+
+## Run it
+
+```bash
+npm install
+npm run smoke-test
+```
+
+`smoke-test` builds the server, starts it over stdio and calls it as an MCP client: it lists the tools, resources and prompts, runs two searches, and checks that one org cannot see another org's courses.
+
+## Use it from Claude Code
+
+```bash
+npm run build
+claude mcp add learning-catalog -e ORG_ID=acme -- node "$(pwd)/dist/server.js"
+```
+
+Then ask Claude something like "Use the learning catalogue to plan how I'd learn RAG in 3 hours a week".
+
+## Stack
+
+TypeScript, `@modelcontextprotocol/sdk`, zod for input schemas, stdio transport.
